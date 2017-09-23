@@ -5,6 +5,11 @@ let _ = require('underscore')
 
 class WAPTree {
     constructor(sequences, supportThreshold) {
+        this.sequences = sequences
+        this.supportThreshold = supportThreshold
+    }
+
+    getResult() {
         var supportCountThreshold = 0
         _.forEach(sequences, function(sequence){
             supportCountThreshold += sequence.count
@@ -26,7 +31,7 @@ class WAPTree {
         let patterns = this.getFrequentSequences(headTable)
 
         //output the frequent patterns
-        this.patterns = patterns
+        return patterns
     }
 
     getFrequentEvents(sequences, supportCountThreshold) {
@@ -63,7 +68,7 @@ class WAPTree {
             }
         })
         
-        return Object.values(allEvents)
+        return Object.keys(allEvents).map(k => allEvents[k])
     }
 
     /*
@@ -89,6 +94,10 @@ class WAPTree {
 
     buildConditionalSequences(eventId, headTable) {
         return undefined 
+    }
+
+    getResult(){
+
     }
 }
 

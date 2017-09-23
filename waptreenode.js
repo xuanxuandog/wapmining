@@ -8,6 +8,7 @@ class WAPTreeNode {
         if (parent != null) {
             parent.addChild(this)
         }
+        this.children = null
         
     }
 
@@ -16,6 +17,10 @@ class WAPTreeNode {
             this.children = new Object()
         }
         this.children[child.event.id] = child
+    }
+
+    static rootNode() {
+        return new WAPTreeNode(null, null, 0)
     }
 }
 

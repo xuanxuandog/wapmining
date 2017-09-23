@@ -9,7 +9,6 @@ class Sequence {
         } else {
             this.count = count
         }
-        console.log(this.events + ":" + this.count)
     }
 }
 
