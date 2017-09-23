@@ -35,6 +35,16 @@ class WAPTreeNode {
         this.count = this.count + count
     }
 
+    getPrefixEvents() {
+        let events = new Array()
+        var currentNode = this.parent
+        while(currentNode != null && currentNode.event != null) {
+            events.push(currentNode.event)
+            currentNode = currentNode.parent
+        }
+        return events.reverse()
+    }
+
     static rootNode() {
         return new WAPTreeNode(null, null, 0)
     }

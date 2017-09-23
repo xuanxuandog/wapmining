@@ -45,3 +45,16 @@ describe('add count', function(){
     c.addCount(3)
     expect(c.count).to.equals(4)
 })
+
+describe('get prefix events', function(){
+    let root = WAPTreeNode.rootNode()
+    let c1 = new WAPTreeNode(root, new Event(1, 'n1'), 1)
+    let c2 = new WAPTreeNode(c1, new Event(2, 'n2'), 1)
+    let c3 = new WAPTreeNode(c2, new Event(3, 'n3'), 1)
+
+    //c3's prefix events should be n1,n2
+    let prefixEvents = c3.getPrefixEvents()
+    expect(prefixEvents.length).to.equals(2)
+    expect(prefixEvents[0].name).to.equals('n1')
+    expect(prefixEvents[1].name).to.equals('n2')
+})

@@ -132,8 +132,37 @@ class WAPTree {
         return undefined  
     }
 
-    buildConditionalSequences(eventId, headTable) {
-        return undefined 
+    /*
+     * get all the prefix conditional sequences of given event
+     * based on the head table  
+     */
+    getConditionalPrefixSequences(eventNodes) {
+        let seqsMap = new Object()// seqId -> Sequence
+        _.forEach(eventNodes, function(eventNode){
+            let prefixEvents = eventNode.getPrefixEvents()
+            if (prefixEvents.length > 0) {
+                let seq = new Sequence(prefixEvents, eventNode.count)
+                if (seqsMap[seq.id] != null) {
+                    seqsMap[seq.id].count = seqsMap[seq.id].count + eventNode.count
+                } else {
+                    seqsMap[seq.id] = seq
+                }
+                //check whether need add duplicate prefix sequence with minus count
+                for(var i = 0; i < prefixEvents.length; i = i + 1) {
+                    if (prefixEvents[i].id == eventNode.event.id) {
+                        //create a new sequence from the begining of prefixEvents to the former event of 
+                        //this prefixEvent, and set the sequence count be minus of eventNode.count
+                        let minusSeq = new Sequence(prefixEvents.slice(0, i), eventNode.count * -1)
+                        if (seqsMap[minusSeq.id] != null) {
+                            seqsMap[minusSeq.id].count = seqsMap[minusSeq.id].count - eventNode.count
+                        } else {
+                            seqsMap[minusSeq.id] = minusSeq
+                        }
+                    }
+                }
+            }
+        })
+        return Object.keys(seqsMap).map(seqId => seqsMap[seqId]).filter(seq => seq.count >0)
     }
 }
 

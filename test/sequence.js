@@ -23,3 +23,8 @@ describe('init with given count', function() {
     expect(seq.events[1].id).to.equals(2)
     expect(seq.events[1].name).to.equals("n2")
 })
+
+describe('test id', function(){
+    let seq = new Sequence(new Array(new Event(1,"n1"),new Event(2,"n2")), 2)
+    expect(seq.id).to.equals('1,2') 
+})

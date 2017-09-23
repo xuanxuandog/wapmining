@@ -9,6 +9,8 @@ class Sequence {
         } else {
             this.count = count
         }
+        //eventId1,eventId2....
+        this.id = events.map(e => e.id).toString()
     }
 }
 

@@ -99,6 +99,41 @@ describe('build tree', function(){
 
 })
 
+describe('get conditional prefix sequences', function(){
+    let seqs = getTestSequences()
+    let tree = new WAPTree(seqs, 0.75)
+    let freEvents = tree.getFrequentEvents(seqs, 3)
+    let newSeqs = tree.filterNoneFrequentEvents(seqs, freEvents)
+    let headTable = tree.buildTree(newSeqs)
+
+    /**
+     * calculate the prefix sequences of node c:2, c:1, c:1, c:1, c:1
+     * should be:  aba : 2; ab : 1; abca : 1; ab : -1; baba : 1; abac : 1; aba : -1
+     * hence should be: aba:1, abca:1, baba:1, abac:1
+     */
+    let prefixSeqs = tree.getConditionalPrefixSequences(headTable['3'])
+    expect(prefixSeqs.length).to.equals(4)
+    var aba = false
+    var abca = false
+    var baba = false
+    var abac = false
+    _.forEach(prefixSeqs, function(seq){
+        if (seq.id == '1,2,1') {
+            aba = true
+        } else if (seq.id == '1,2,3,1') {
+            abca = true
+        } else if (seq.id == '2,1,2,1') {
+            baba = true
+        } else if (seq.id == '1,2,1,3') {
+            abac = true
+        }
+    })
+    expect(aba).to.equals(true)
+    expect(abca).to.equals(true)
+    expect(baba).to.equals(true)
+    expect(abac).to.equals(true)
+})
+
 
 function getTestSequences() {
     /*
