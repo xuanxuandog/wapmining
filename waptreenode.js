@@ -19,6 +19,22 @@ class WAPTreeNode {
         this.children[child.event.id] = child
     }
 
+    hasChild(eventId) {
+        return this.children != null && this.children[eventId] != null
+    }
+
+    getChild(eventId) {
+        if (this.children != null) {
+            return this.children[eventId]
+        } else {
+            return null
+        }
+    }
+
+    addCount(count) {
+        this.count = this.count + count
+    }
+
     static rootNode() {
         return new WAPTreeNode(null, null, 0)
     }

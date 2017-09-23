@@ -2,6 +2,7 @@
 
 let Sequence = require('./sequence.js')
 let _ = require('underscore')
+let WAPTreeNode = require('./waptreenode.js')
 
 class WAPTree {
     constructor(sequences, supportThreshold) {
@@ -14,8 +15,6 @@ class WAPTree {
         let supportCountThreshold = this.getSupportCountThreshold(this.sequences, this.supportThreshold)
 
         let frequentEvents = this.getFrequentEvents(this.sequences, supportCount)
-
-        console.log(frequentEvents)
 
         let newSequence = this.filterNoneFrequentEvents(this.sequences, frequentEvents)
         
@@ -48,7 +47,7 @@ class WAPTree {
             apprear more than once in some sequence, the count of that sequence is still 1
         */
         let eventCount = new Object() //eventId->support count
-        let allEvents = new Object() //eventId->event
+        let frequentEvents = new Object() //eventId->event
         _.forEach(sequences, function(sequence) {
             let events = sequence.events
             let eventsSupportedByThisSequence = new Object()
@@ -56,8 +55,8 @@ class WAPTree {
                 if (eventsSupportedByThisSequence[event.id] == null) {
                     eventsSupportedByThisSequence[event.id] = 1
                 } 
-                if (allEvents[event.id] == null) {
-                    allEvents[event.id] = event
+                if (frequentEvents[event.id] == null) {
+                    frequentEvents[event.id] = event
                 }
             })
             Object.keys(eventsSupportedByThisSequence).forEach(function(eventId){
@@ -68,27 +67,62 @@ class WAPTree {
                 }
             })
         })
+        //remove event whose appear times < supportCountThreshold
         Object.keys(eventCount).forEach(function(eventId){
             if (eventCount[eventId] < supportCountThreshold) {
-                delete allEvents[eventId]
+                delete frequentEvents[eventId]
             }
         })
         
-        return Object.keys(allEvents).map(k => allEvents[k])
+        return frequentEvents
     }
 
     /*
-        return new sequences that doesn't contain none frequent events
+        for all sequences, remove the events that not belong to frequent events from the sequence
     */
     filterNoneFrequentEvents(sequences, frequentEvents) {
-        return undefined
+        let newSequences = new Array()
+        _.forEach(sequences, function(sequence){
+            let es = new Array()
+            _.forEach(sequence.events, function(event){
+                if (frequentEvents[event.id] != null) {
+                    es.push(event)
+                }
+            })
+            if (es.length > 0) {
+                newSequences.push(new Sequence(es, sequence.count))
+            }
+        })
+        return newSequences
     }
 
     /*
-        build trees and head table
+        build trees and return the head table
     */
     buildTree(sequences) {
-        return undefined     
+        let headTable = new Object()
+        let root = WAPTreeNode.rootNode()
+        headTable['0'] = root
+
+        _.forEach(sequences, function(sequence){
+            //insert the sequence from root
+            var currentNode = root
+            _.forEach(sequence.events, function(event){
+                if (currentNode.hasChild(event.id)) {
+                    currentNode = currentNode.getChild(event.id)
+                    currentNode.addCount(sequence.count)
+                } else {
+                    currentNode = new WAPTreeNode(currentNode, event, sequence.count)
+                    //update head table
+                    if (headTable[event.id] == null) {
+                        headTable[event.id] = new Array(currentNode)
+                    } else {
+                        headTable[event.id].push(currentNode)
+                    }
+                }
+            })
+        })
+        return headTable     
     }
 
     /*
@@ -100,10 +134,6 @@ class WAPTree {
 
     buildConditionalSequences(eventId, headTable) {
         return undefined 
-    }
-
-    getResult(){
-
     }
 }
 
