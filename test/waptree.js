@@ -5,11 +5,19 @@ let EventSet = require("../eventset.js")
 let Sequence = require("../sequence.js")
 let _ = require("underscore")
 
+describe('get support count threhsold', function(){
+    let seqs = getTestSequences()
+    let tree = new WAPTree(seqs, 0.75)
+    let supportCountThreshold = tree.getSupportCountThreshold(seqs, 0.75)
+    //support count threshold is number of sequences * support threshold which is 4 * 0.75 = 3
+    expect(supportCountThreshold).to.equals(3)
+})
+
 describe('get frequent events', function() {
     
     let seqs = getTestSequences()
     let tree = new WAPTree(seqs, 0.75)
-    //support count threshold is 4 * 0.75 = 3
+    
     //frequent events should be 'a','b','c'
     let freEvents = tree.getFrequentEvents(seqs, 3)
     expect(freEvents.length).to.equals(3)

@@ -10,17 +10,14 @@ class WAPTree {
     }
 
     getResult() {
-        var supportCountThreshold = 0
-        _.forEach(sequences, function(sequence){
-            supportCountThreshold += sequence.count
-        })
-        supportCountThreshold = supportCountThreshold * supportThreshold
+        
+        let supportCountThreshold = this.getSupportCountThreshold(this.sequences, this.supportThreshold)
 
-        let frequentEvents = this.getFrequentEvents(sequences, supportCount)
+        let frequentEvents = this.getFrequentEvents(this.sequences, supportCount)
 
         console.log(frequentEvents)
 
-        let newSequence = this.filterNoneFrequentEvents(sequences, frequentEvents)
+        let newSequence = this.filterNoneFrequentEvents(this.sequences, frequentEvents)
         
         //head table:
         //(eventId -> Array[WAPTreeNode]), if eventId is 0, the value contains the root node
@@ -32,6 +29,15 @@ class WAPTree {
 
         //output the frequent patterns
         return patterns
+    }
+
+    getSupportCountThreshold(sequences, supportThreshold) {
+        var supportCountThreshold = 0
+        _.forEach(sequences, function(sequence){
+            supportCountThreshold += sequence.count
+        })
+        supportCountThreshold = supportCountThreshold * supportThreshold
+        return supportCountThreshold
     }
 
     getFrequentEvents(sequences, supportCountThreshold) {
