@@ -9,13 +9,13 @@ class Sequence {
         } else {
             this.count = count
         }
-        //eventId1,eventId2....
-        this.id = events.map(e => e.id).toString()
+        //event1,event2....
+        this.id = events.toString()
     }
 
     getSubSequences() {
         /**
-         * for sequence abc, will return a, ab, abc, b, bc, c
+         * for sequence 1,2,3, will return 1, 12, 123, 2, 23, 3
          */
         let result = new Array()
         for(var i = 0; i < this.events.length; i = i + 1) {

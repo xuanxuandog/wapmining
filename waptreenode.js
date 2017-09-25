@@ -16,16 +16,16 @@ class WAPTreeNode {
         if (this.children == null) {
             this.children = new Object()
         }
-        this.children[child.event.id] = child
+        this.children[child.event] = child
     }
 
-    hasChild(eventId) {
-        return this.children != null && this.children[eventId] != null
+    hasChild(event) {
+        return this.children != null && this.children[event] != null
     }
 
-    getChild(eventId) {
+    getChild(event) {
         if (this.children != null) {
-            return this.children[eventId]
+            return this.children[event]
         } else {
             return null
         }
