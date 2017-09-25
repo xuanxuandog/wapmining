@@ -196,7 +196,40 @@ describe('getFrequentSequences multiple branches', function(){
     expect(patterns[12].id).to.equals('1,2,3')        
 })
 
-
+describe('get result', function(){
+    let seqs = getTestSequences()
+    let tree = new WAPTree(seqs, WAPTree.getSupportCountThreshold(seqs, 0.99))
+    let patterns = tree.getResult()
+    /** patterns should be: 
+     *  1
+        1,1
+        2,1
+        1,2,1
+        2
+        1,2
+        3
+        1,3
+        1,1,3
+        2,1,3
+        1,2,1,3
+        2,3
+        1,2,3
+     */
+    expect(patterns.length).to.equals(13)
+    expect(patterns[0].id).to.equals('1') 
+    expect(patterns[1].id).to.equals('1,1') 
+    expect(patterns[2].id).to.equals('2,1') 
+    expect(patterns[3].id).to.equals('1,2,1') 
+    expect(patterns[4].id).to.equals('2') 
+    expect(patterns[5].id).to.equals('1,2')
+    expect(patterns[6].id).to.equals('3')
+    expect(patterns[7].id).to.equals('1,3')
+    expect(patterns[8].id).to.equals('1,1,3')
+    expect(patterns[9].id).to.equals('2,1,3')
+    expect(patterns[10].id).to.equals('1,2,1,3')
+    expect(patterns[11].id).to.equals('2,3')
+    expect(patterns[12].id).to.equals('1,2,3') 
+})
 
 
 function getTestSequences() {
