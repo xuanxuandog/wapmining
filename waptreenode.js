@@ -45,6 +45,34 @@ class WAPTreeNode {
         return events.reverse()
     }
 
+    getOneBranchSuffixEvents() {
+        let events = new Array()
+        var temp = this.children
+        while(temp != null) {
+            let childrenIds = Object.keys(temp)
+            if (childrenIds.length == 0) {
+                return events
+            } else {
+                events.push(temp[childrenIds[0]].event)
+                temp = temp[childrenIds[0]].children
+            }
+        }
+        return events
+    }
+
+    hasOnlyOneBranch() {
+        var temp = this.children
+        while (temp != null) {
+            let childrenIds = Object.keys(temp)
+            if (childrenIds.length > 1) {
+                return false
+            } else {
+                temp = temp[childrenIds[0]].children
+            }
+        }
+        return true
+    }
+
     static rootNode() {
         return new WAPTreeNode(null, null, 0)
     }

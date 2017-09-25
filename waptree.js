@@ -129,6 +129,14 @@ class WAPTree {
         return all frequent access patterns
     */
     getFrequentSequences(rootNode, headTable) {
+        //1 if tree has only one branch, return all sub-sequences of the sequence in this branch
+        //2 else if tree has multiple branch, for every event in headTable except root:
+        //  2.1 add this single event to result
+        //  2.2 get conditional prefix sequences of that event
+        //  2.2 build WAPTree for that sequences and recursively get result(all prefix sequences of that event), then append that event and add to result
+
+        
+
         return undefined  
     }
 
