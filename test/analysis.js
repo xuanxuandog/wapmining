@@ -43,23 +43,31 @@ describe('get pattern', function(){
     let result = analysis.getResult(rawlogs)
     /**
      * should be:
-     * {"1":"a","2":"b","1,2":"a,b"}
+     * {"patterns":[["a"],["a","b"],["b"]]}
      */
-    expect(Object.keys(result).length).to.equals(3)
-    expect(result['1']).to.equals('a')
-    expect(result['2']).to.equals('b')
-    expect(result['1,2']).to.equals('a,b')
+    expect(result.patterns.length).to.equals(3)
+    expect(result.patterns[0].length).to.equals(1)
+    expect(result.patterns[0][0]).to.equals('a')
+
+    expect(result.patterns[1].length).to.equals(2)
+    expect(result.patterns[1][0]).to.equals('a')
+    expect(result.patterns[1][1]).to.equals('b')
+    
+    expect(result.patterns[2].length).to.equals(1)
+    expect(result.patterns[2][0]).to.equals('b')
 })
 
 describe('analysis', function(){
     let analysis = new Analysis({params:{supportThreshold:0.6}})
-    let profile = {1:"a", 2:"b"}
-    let sample = {2:"b", 3:"c"}
+    let profile = {"patterns":[["a"],["b"]]}
+    let sample = {"patterns":[["a"],["c"]]}
     let result = analysis.analysis(profile, sample)
     /**
      * should be:
-     * {"anomaly":{"3":"c"}}
+     * {"anomaly":{"patterns":[["c"]]}}
      */
-    expect(result['anomaly']['3']).to.equals('c')
-    expect(Object.keys(result['anomaly']).length).to.equals(1)
+    expect(result.anomaly.patterns.length).to.equals(1)
+    expect(result.anomaly.patterns[0].length).to.equals(1)
+    expect(result.anomaly.patterns[0][0]).to.equals('c')
+
 })

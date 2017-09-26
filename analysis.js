@@ -76,10 +76,12 @@ class Analysis {
 
     getResult(rawlogs) {
         let analysis = this
+        console.log("grouping to sessions...")
         let sessions = this.getSessions(rawlogs)
         let eventSet = new EventSet()
         let sequences = new Array()
 
+        console.log("converting to sequences...")
         _.forEach(sessions, function(session){
             //session => sequence
             let events = new Array()
@@ -90,31 +92,67 @@ class Analysis {
             })
             sequences.push(new Sequence(events))
         })
-
+        console.log("converted to " + sequences.length + " sequences")
         let result = {}
-        if (this.options.type == Analysis.TYPE_FREQUENT_SEQUENCES) {
-            let frequentSequences = new WAPTree(sequences, WAPTree.getSupportCountThreshold(sequences, this.options.params.supportThreshold)).getResult()
-            if (frequentSequences != null && frequentSequences.length > 0) {
-                _.forEach(frequentSequences, function(seq){
-                    result[seq.id] = seq.events.map(e => eventSet.getName(e)).toString()
-                })
-            }
+        result.patterns = new Array()
+        
+        console.log("calculating support count threshold...")
+        let supportCountThreshold = WAPTree.getSupportCountThreshold(sequences, this.options.params.supportThreshold)
+        console.log("support count threshold:" + supportCountThreshold)
+        console.log("WAP-tree mining...")
+        var singleEvent = false
+
+        if (this.options.type == Analysis.TYPE_FREQUENT_EVENTS) {
+            singleEvent = true
         }
+        let frequentSequences = new WAPTree(sequences, supportCountThreshold, singleEvent).getResult()
+        if (frequentSequences != null && frequentSequences.length > 0) {
+            _.forEach(frequentSequences, function(seq){
+                result.patterns.push(seq.events.map(e => eventSet.getName(e)))
+            })
+        }
+        
+        console.log("found " + result.patterns.length + " patterns")
+        console.log("patterns:" + JSON.stringify(result))
         return result
     }
 
     analysis(profile, sample) {
+        let analysis = this
         let result = {}
-        if (profile != null && sample != null) {
-            result['anomaly'] = {}
-            let patterns = Object.keys(sample)
-            _.forEach(patterns, function(pattern){
-                if (profile[pattern] == null) {
-                    result['anomaly'][pattern] = sample[pattern]
+        if (profile != null && sample != null && sample.patterns != null && sample.patterns.length > 0) {
+            result.anomaly = {}
+
+            if (profile.patterns == null || profile.patterns.length == 0) {
+                result.anomaly.patterns = sample.patterns
+            } else {
+                result.anomaly.patterns = new Array()
+            }
+            _.forEach(sample.patterns, function(samplePattern){
+                var match = false
+                _.forEach(profile.patterns, function(profilePattern){
+                    if (analysis.compareArray(samplePattern, profilePattern)) {
+                        match = true
+                    }
+                })
+                if (!match) {
+                    result.anomaly.patterns.push(samplePattern)
                 }
             })
         }
         return result
+    }
+
+    compareArray(arr1, arr2) {
+        if (arr1 != null && arr2 != null && arr1.length == arr2.length) {
+            for (var i = 0; i < arr1.length; i = i + 1) {
+                if (arr1[i] != arr2[i]) {
+                    return false
+                }
+            }
+            return true
+        }
+        return false
     }
 
     getSessions(rawlogs) {

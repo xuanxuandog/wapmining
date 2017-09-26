@@ -5,15 +5,30 @@ let _ = require('underscore')
 let WAPTreeNode = require('./waptreenode.js')
 
 class WAPTree {
-    constructor(sequences, supportCountThreshold) {
+    /**
+     * 
+     * @param {*} sequences 
+     * @param {*} supportCountThreshold 
+     * @param {*} singleEvent  if singleEvent set to true, this will be a special WAP-Tree which only count frequent single events instead of frequent sequences
+     */
+    constructor(sequences, supportCountThreshold, singleEvent) {
         this.sequences = sequences
         this.supportCountThreshold = supportCountThreshold
+        if (singleEvent != null) {
+            this.singleEvent = singleEvent
+        } else {
+            this.singleEvent = false //default
+        }
     }
 
     getResult() {
         
         let frequentEvents = this.getFrequentEvents(this.sequences, this.supportCountThreshold)
         
+        if (this.singleEvent) {
+            return Object.keys(frequentEvents).map(e => new Sequence(new Array(e.toString())))
+        }
+
         let newSequence = this.filterNoneFrequentEvents(this.sequences, frequentEvents)
         
         //head table:
