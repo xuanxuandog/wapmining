@@ -141,14 +141,14 @@ describe('getFrequentSequences only one branch', function(){
 
     let tree = new WAPTree(null, null)
     let patterns = tree.getFrequentSequences(root, null)
-    //should be 1,12,123,2,23,3
+    //should be 1,2,3,12,123,23
     expect(patterns.length).to.equals(6)
     expect(patterns[0].id).to.equals("1") 
-    expect(patterns[1].id).to.equals("1,2")/
-    expect(patterns[2].id).to.equals("1,2,3")
-    expect(patterns[3].id).to.equals("2")
-    expect(patterns[4].id).to.equals("2,3")
-    expect(patterns[5].id).to.equals("3")
+    expect(patterns[1].id).to.equals("2")
+    expect(patterns[2].id).to.equals("3")
+    expect(patterns[3].id).to.equals("1,2")
+    expect(patterns[4].id).to.equals("1,2,3")
+    expect(patterns[5].id).to.equals("2,3")
 })
 
 describe('getFrequentSequences only one branch with empty result', function(){

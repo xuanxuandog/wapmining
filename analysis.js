@@ -93,7 +93,7 @@ class Analysis {
         }
     }
 
-    getPatterns(rawlogs) {
+    getPatterns(rawlogs, label) {
         let analysis = this
         log.info("got " + rawlogs.length + " raw data")
         log.info("grouping to sessions...")
@@ -132,13 +132,15 @@ class Analysis {
                 result.patterns.push(seq.events.map(e => eventSet.getName(e)))
             })
         }
-        
+        if (label != null) {
+            result.label = label
+        }
         log.info("found " + result.patterns.length + " patterns")
         log.info(result)
         return result
     }
 
-    analysis(profile, sample) {
+    static findAnomaly(profile, sample) {
         let analysis = this
         let result = {}
         if (profile != null && sample != null && sample.patterns != null && sample.patterns.length > 0) {
@@ -164,7 +166,32 @@ class Analysis {
         return result
     }
 
-    compareArray(arr1, arr2) {
+    /**
+     * given profile patterns and sample patterns, return the percentage that how many patterns in sample patterns can be found in profile patterns
+     * @param {*} profile 
+     * @param {*} sample 
+     */
+    static matchPattern(profile, sample) {
+        var result
+        if (profile != null && sample != null && sample.patterns != null && sample.patterns.length > 0 && profile.patterns != null && profile.patterns.length > 0) {
+            var matchedCount = 0
+            _.forEach(sample.patterns, function(samplePattern){
+                _.forEach(profile.patterns, function(profilePattern){
+                    if (Analysis.compareArray(samplePattern, profilePattern)) {
+                        matchedCount = matchedCount + 1
+                    }
+                })
+            })
+            
+            result = matchedCount / sample.patterns.length
+        } else {
+            result = 0
+        }
+        log.info("sample(" + sample.label + ") has " + (result * 100).toFixed(2) + "% same as profile(" + profile.label + ")")
+        return result
+    }
+
+    static compareArray(arr1, arr2) {
         if (arr1 != null && arr2 != null && arr1.length == arr2.length) {
             for (var i = 0; i < arr1.length; i = i + 1) {
                 if (arr1[i] != arr2[i]) {

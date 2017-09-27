@@ -37,9 +37,9 @@ class WAPTree {
         
         let frequentEvents = this.getFrequentEvents(this.sequences, this.supportCountThreshold)
 
-        if (this.enableDebug) {
-            console.log("frequent events:")
-            console.log(frequentEvents)
+        if (log.isDebugEnabled()) {
+            log.debug("frequent events:")
+            log.debug(frequentEvents)
         }
 
         if (this.singleEvent) {

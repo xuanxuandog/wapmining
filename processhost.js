@@ -4,45 +4,49 @@ let Analysis = require('./analysis.js')
 let _ = require('underscore')
 let Logger = require('./logger.js')
 let log = new Logger('ProcessHost')
+let Q = require('q')
 
 class ProcessHost {
-    constructor(ip) {
-        this.ip = ip
-    }
 
-    process() {
+    static process() {
         let pro = this
-        this.collectData(function(rawlogs){
-            let analysis = new Analysis({
-                type : Analysis.TYPE_FREQUENT_EVENTS,
-                rawlog : {
-                    sessionInterval : 10,
-                    event : ['host','ip']
-                },
-                params : {
-                    supportThreshold : 0.2
-                }  
-            })
-            analysis.getPatterns(rawlogs)
+        let promises = new Array()
+        //192.168.1.229  xiaomi
+        //192.168.1.224 iphone6splus
+        //192.168.1.148 iphone6s
+        let test = ["192.168.1.224", "192.168.1.148"] //two iphones
+        //let test = ["192.168.1.224", "192.168.1.229"]  //iphone and xiaomi
 
-            let analysis2 = new Analysis({
-                type : Analysis.TYPE_FREQUENT_SEQUENCES,
-                rawlog : {
-                    sessionInterval : 10,
-                    event : ['host','ip']
-                },
-                params : {
-                    supportThreshold : 0.2
-                }  
+        _.forEach(test, function(ip){
+            var deferred = Q.defer();
+            ProcessHost.collectData(ip, function(rawlogs){
+                let analysis = new Analysis({
+                    type : Analysis.TYPE_FREQUENT_SEQUENCES,
+                    rawlog : {
+                        sessionInterval : 10,
+                        event : ['host','ip']
+                    },
+                    params : {
+                        supportThreshold : 0.1
+                    }  
+                })
+                deferred.resolve(analysis.getPatterns(rawlogs, ip))
             })
-            analysis2.getPatterns(rawlogs)
+            promises.push(deferred.promise)
         })
+
+        Q.allSettled(promises).then(function(results) {
+            let profile = results[0].value
+            let sample = results[1].value
+            Analysis.matchPattern(profile, sample)
+        })
+        
     }
 
-    collectData(callback) {
-        log.info("collecting raw data...")
+    static collectData(ip, callback) {
+        log.info("collecting raw data for " + ip + " ...")
         var request = require('request');
-        request.get("http://frp.7yu.io:9834/v1/host/" + this.ip + "/recentFlow", function(err, res, body) {
+        request.get("http://frp.7yu.io:9834/v1/host/" + ip + "/recentFlow", function(err, res, body) {
             if (!err && res.statusCode === 200) {
                 var fs = require('fs');
                 var stream = fs.createWriteStream("test.json");
@@ -57,9 +61,9 @@ class ProcessHost {
         });
     }
 
-    collectData2(callback) {
+    static collectData2(ip, callback) {
         let fs = require('fs')
-        fs.readFile('./test.json', 'utf8', function (err,data) {
+        fs.readFile('./kindle.json', 'utf8', function (err,data) {
           if (err) {
             return console.log(err);
           }
@@ -68,7 +72,4 @@ class ProcessHost {
     }
 }
 
-
-
-let ph = new ProcessHost("192.168.1.148")
-ph.process()
+ProcessHost.process()

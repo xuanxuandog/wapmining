@@ -23,11 +23,11 @@ describe('set event value by fields name', function(){
     rawlogs.push({ts : 1, host : 'e1'})
     rawlogs.push({ts : 2, ip : 'e2'})
     let p = analysis.getPatterns(rawlogs)
-    //{"patterns":[["e1"],["e1","e2"],["e2"]]}
+    //{"patterns":[["e1"],["e2"],["e1","e2"]]}
     expect(p.patterns[0][0]).to.equals('e1')
-    expect(p.patterns[1][0]).to.equals('e1')
-    expect(p.patterns[1][1]).to.equals('e2')
-    expect(p.patterns[2][0]).to.equals('e2')
+    expect(p.patterns[1][0]).to.equals('e2')
+    expect(p.patterns[2][0]).to.equals('e1')
+    expect(p.patterns[2][1]).to.equals('e2')
 })
 
 describe('set event value by function', function(){
@@ -84,25 +84,26 @@ describe('get pattern', function(){
     let result = analysis.getPatterns(rawlogs)
     /**
      * should be:
-     * {"patterns":[["a"],["a","b"],["b"]]}
+     * { patterns: [ [ 'a' ], [ 'b' ], [ 'a', 'b' ] ] }
      */
     expect(result.patterns.length).to.equals(3)
     expect(result.patterns[0].length).to.equals(1)
     expect(result.patterns[0][0]).to.equals('a')
 
-    expect(result.patterns[1].length).to.equals(2)
-    expect(result.patterns[1][0]).to.equals('a')
-    expect(result.patterns[1][1]).to.equals('b')
+    expect(result.patterns[1].length).to.equals(1)
+    expect(result.patterns[1][0]).to.equals('b')
+
+    expect(result.patterns[2].length).to.equals(2)
+    expect(result.patterns[2][0]).to.equals('a')
+    expect(result.patterns[2][1]).to.equals('b')
     
-    expect(result.patterns[2].length).to.equals(1)
-    expect(result.patterns[2][0]).to.equals('b')
+    
 })
 
-describe('analysis', function(){
-    let analysis = new Analysis({params:{supportThreshold:0.6}})
+describe('findAnomaly', function(){
     let profile = {"patterns":[["a"],["b"]]}
     let sample = {"patterns":[["a"],["c"]]}
-    let result = analysis.analysis(profile, sample)
+    let result = Analysis.findAnomaly(profile, sample)
     /**
      * should be:
      * {"anomaly":{"patterns":[["c"]]}}
@@ -111,4 +112,11 @@ describe('analysis', function(){
     expect(result.anomaly.patterns[0].length).to.equals(1)
     expect(result.anomaly.patterns[0][0]).to.equals('c')
 
+})
+
+
+describe('match pattern', function(){
+    let profile = {"patterns":[["a"],["b"]]}
+    let sample = {"patterns":[["a"],["c"]]}
+    expect(Analysis.matchPattern(profile, sample)).to.equals(0.5)
 })
