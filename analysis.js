@@ -18,11 +18,14 @@ class Analysis {
      * 
      *  
      * {
-     *    "type" : "",//analysis type, can be 1:frequent sequence 2: frequent event, default is frequent sequence
+     *    "type" : "",//analysis type, can be 1:frequent sequence 2: frequent events, default is frequent sequences
      *    "rawlog" : {
      *       "time" : "", //field in the raw logs to store the time value, default is 'ts'
      *       "sessionInterval" : //the time in seconds to split different session, default is 10 mins = 600
-     *       "event" : "", //field in the raw logs to store the event name, default is 'event'
+     *       "event" : "", can be three kinds of values:
+     *                     1. string, which represent the field name to store the event value in rawlog
+     *                     2. array of string, which means try to get the event value from rawlog in the order of the array
+     *                     3. a function, which is cutomized to get event value from rawlog 
      *    },
      *    "params":{
      *       "supportThreshold" : "" //support threshold when 'type' is 'frequent sequence', for example:0.75
@@ -74,7 +77,19 @@ class Analysis {
         }
     }
 
-    getResult(rawlogs) {
+    getEventValue(rawlog, handler) {
+        if (Array.isArray(handler)) {
+            for(var i = 0; i < handler.length; i++) {
+                if (rawlog[handler[i]] != null) return rawlog[handler[i]]
+            }
+        } else if(typeof handler === "function") {
+            return handler(rawlog)
+        } else {
+            return rawlog[handler]
+        }
+    }
+
+    getPatterns(rawlogs) {
         let analysis = this
         console.log("grouping to sessions...")
         let sessions = this.getSessions(rawlogs)
@@ -86,7 +101,7 @@ class Analysis {
             //session => sequence
             let events = new Array()
             _.forEach(session, function(rawlog){
-                let event = rawlog[analysis.options.rawlog.event]
+                let event = analysis.getEventValue(rawlog, analysis.options.rawlog.event)
                 let eventId = eventSet.createEvent(event)
                 events.push(eventId)
             })

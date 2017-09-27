@@ -13,38 +13,29 @@ class ProcessHost {
         this.collectData(function(rawlogs){
             console.log("got " + rawlogs.length + " raw data")
             console.log("preprocessing...")
-            pro.preprocess(rawlogs)
             let analysis = new Analysis({
                 type : Analysis.TYPE_FREQUENT_EVENTS,
                 rawlog : {
-                    sessionInterval : 60
+                    sessionInterval : 60,
+                    event : ['host','ip']
                 },
                 params : {
                     supportThreshold : 0.2
                 }  
             })
-            analysis.getResult(rawlogs)
+            analysis.getPatterns(rawlogs)
 
             let analysis2 = new Analysis({
                 type : Analysis.TYPE_FREQUENT_SEQUENCES,
                 rawlog : {
-                    sessionInterval : 60
+                    sessionInterval : 60,
+                    event : ['host','ip']
                 },
                 params : {
                     supportThreshold : 0.2
                 }  
             })
-            analysis2.getResult(rawlogs)
-        })
-    }
-
-    preprocess(rawlogs) {
-        _.forEach(rawlogs, function(rawlog) {
-            if (rawlog.host != null) {
-                rawlog.event = rawlog.host
-            } else {
-                rawlog.event = rawlog.ip
-            }
+            analysis2.getPatterns(rawlogs)
         })
     }
 

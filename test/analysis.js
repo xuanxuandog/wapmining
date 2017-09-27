@@ -4,6 +4,47 @@ let Analysis = require('../analysis.js')
 let Sequence = require('../sequence.js')
 let _ = require('underscore')
 
+describe('set event value by field name', function() {
+    let analysis = new Analysis()
+    let rawlogs = new Array()
+    rawlogs.push({ts : 1, event : 'e1'})
+    let p = analysis.getPatterns(rawlogs)
+    //{"patterns":[["e1"]]}
+    expect(p.patterns[0][0]).to.equals('e1')
+})
+
+describe('set event value by fields name', function(){
+    let analysis = new Analysis({
+        rawlog:{
+            event:['host','ip']
+        }
+    })
+    let rawlogs = new Array()
+    rawlogs.push({ts : 1, host : 'e1'})
+    rawlogs.push({ts : 2, ip : 'e2'})
+    let p = analysis.getPatterns(rawlogs)
+    //{"patterns":[["e1"],["e1","e2"],["e2"]]}
+    expect(p.patterns[0][0]).to.equals('e1')
+    expect(p.patterns[1][0]).to.equals('e1')
+    expect(p.patterns[1][1]).to.equals('e2')
+    expect(p.patterns[2][0]).to.equals('e2')
+})
+
+describe('set event value by function', function(){
+    let analysis = new Analysis({
+        rawlog:{
+            event: function(rawlog){
+                return rawlog['e']
+            }
+        }
+    })
+    let rawlogs = new Array()
+    rawlogs.push({ts : 1, e : 'e1'})
+    let p = analysis.getPatterns(rawlogs)
+    //{"patterns":[["e1"]]}
+    expect(p.patterns[0][0]).to.equals('e1')
+})
+
 describe('get sessions', function(){
     let analysis = new Analysis()
     let rawlogs = new Array()
@@ -40,7 +81,7 @@ describe('get pattern', function(){
     rawlogs.push({ts : 1506499985.831362, event : 'a'})
     rawlogs.push({ts : 1506399985.831362, event : 'b'})
 
-    let result = analysis.getResult(rawlogs)
+    let result = analysis.getPatterns(rawlogs)
     /**
      * should be:
      * {"patterns":[["a"],["a","b"],["b"]]}
