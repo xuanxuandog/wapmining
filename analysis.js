@@ -4,7 +4,8 @@ let WAPTree = require('./waptree.js')
 let EventSet = require('./eventset.js')
 let Sequence = require('./sequence.js')
 let _ = require('underscore')
-
+let Logger = require('./logger.js')
+let log = new Logger('Analysis')
 class Analysis {
 
     static get TYPE_FREQUENT_SEQUENCES(){
@@ -41,11 +42,11 @@ class Analysis {
                 type : Analysis.TYPE_FREQUENT_SEQUENCES,
                 rawlog : {
                     time : "ts",
-                    sessionInterval : 600,
+                    sessionInterval : 60,
                     event : "event"
                 },
                 params : {
-                    supportThreshold : 0.8
+                    supportThreshold : 0.75
                 }
             }
         } else {
@@ -76,7 +77,7 @@ class Analysis {
             this.options.params = {}
         }
         if (this.options.params.supportThreshold == null) {
-            this.options.params.supportThreshold = 0.8
+            this.options.params.supportThreshold = 0.75
         }
     }
 
@@ -94,13 +95,14 @@ class Analysis {
 
     getPatterns(rawlogs) {
         let analysis = this
-        console.log("grouping to sessions...")
+        log.info("got " + rawlogs.length + " raw data")
+        log.info("grouping to sessions...")
         let sessions = this.getSessions(rawlogs)
-        console.log("got " + sessions.length + " sessions...")
+        log.info("got " + sessions.length + " sessions...")
         let eventSet = new EventSet()
         let sequences = new Array()
 
-        console.log("converting to sequences...")
+        log.info("converting to sequences...")
         _.forEach(sessions, function(session){
             //session => sequence
             let events = new Array()
@@ -111,14 +113,14 @@ class Analysis {
             })
             sequences.push(new Sequence(events))
         })
-        console.log("got " + sequences.length + " sequences")
+        log.info("got " + sequences.length + " sequences")
         let result = {}
         result.patterns = new Array()
-        
-        console.log("calculating support count threshold...")
+
+        log.info("calculating support count threshold...")
         let supportCountThreshold = WAPTree.getSupportCountThreshold(sequences, this.options.params.supportThreshold)
-        console.log("support count threshold:" + supportCountThreshold)
-        console.log("WAP-tree mining...")
+        log.info("support count threshold:" + supportCountThreshold)
+        log.info("WAP-tree mining...")
         var singleEvent = false
 
         if (this.options.type == Analysis.TYPE_FREQUENT_EVENTS) {
@@ -131,8 +133,8 @@ class Analysis {
             })
         }
         
-        console.log("found " + result.patterns.length + " patterns")
-        console.log("patterns:" + JSON.stringify(result))
+        log.info("found " + result.patterns.length + " patterns")
+        log.info(result)
         return result
     }
 

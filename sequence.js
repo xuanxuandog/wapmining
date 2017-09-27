@@ -17,14 +17,15 @@ class Sequence {
         /**
          * for sequence 1,2,3, will return 1, 12, 123, 2, 23, 3
          */
-        let result = new Array()
+        let result = new Object()
         for(var i = 0; i < this.events.length; i = i + 1) {
             //add all events sequence starting with this event(inclusive)
             for (var j = 0; i + j < this.events.length; j = j + 1) {
-                result.push(new Sequence(this.events.slice(i, i + j + 1)))
+                let seq = new Sequence(this.events.slice(i, i + j + 1))
+                result[seq.id] = seq
             }
         }
-        return result
+        return Object.keys(result).map(k => result[k])
     }
 }
 

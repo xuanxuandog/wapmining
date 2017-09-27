@@ -3,8 +3,11 @@
 let Sequence = require('./sequence.js')
 let _ = require('underscore')
 let WAPTreeNode = require('./waptreenode.js')
+let Logger = require('./logger.js')
+let log = new Logger('WAPTree')
 
 class WAPTree {
+
     /**
      * 
      * @param {*} sequences 
@@ -19,21 +22,40 @@ class WAPTree {
         } else {
             this.singleEvent = false //default
         }
+        
+        if (log.isDebugEnabled()) {
+            log.debug("initial seqs:")
+            log.debug(this.sequences)
+        }
     }
 
     getResult() {
         
         let frequentEvents = this.getFrequentEvents(this.sequences, this.supportCountThreshold)
-        
+
+        if (this.enableDebug) {
+            console.log("frequent events:")
+            console.log(frequentEvents)
+        }
+
         if (this.singleEvent) {
             return Object.keys(frequentEvents).map(e => new Sequence(new Array(e.toString())))
         }
 
         let newSequence = this.filterNoneFrequentEvents(this.sequences, frequentEvents)
         
+        if(log.isDebugEnabled()) {
+            log.debug("seqs to process:")
+            log.debug(newSequence)
+        }
+
         //head table:
         //(eventId -> Array[WAPTreeNode]), if eventId is 0, the value contains the root node
         let headTable = this.buildTree(newSequence)
+        if (log.isDebugEnabled()) {
+            log.debug("head table:")
+            log.debug(headTable)
+        }
 
         //patterns:all frequent sequences
         let patterns = this.getFrequentSequences(headTable[0],headTable)

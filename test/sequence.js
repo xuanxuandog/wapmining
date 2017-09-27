@@ -27,12 +27,22 @@ describe('test id', function(){
 describe('get sub sequences', function(){
     let seq = new Sequence(new Array(1, 2, 3))
     let subSeqs = seq.getSubSequences()
-    //subSeqs is 1,12,123,2,23,3
+    //subSeqs is 1, 2, 3, 12,123,23
     expect(subSeqs.length == 6)
-    expect(subSeqs[0].id).to.equals("1")//a
-    expect(subSeqs[1].id).to.equals("1,2")//a,b
-    expect(subSeqs[2].id).to.equals("1,2,3")//a,b,c
-    expect(subSeqs[3].id).to.equals("2")//b
-    expect(subSeqs[4].id).to.equals("2,3")//b,c
-    expect(subSeqs[5].id).to.equals("3")//c
+    expect(subSeqs[0].id).to.equals("1")
+    expect(subSeqs[1].id).to.equals("2")
+    expect(subSeqs[2].id).to.equals("3")
+    expect(subSeqs[3].id).to.equals("1,2")
+    expect(subSeqs[4].id).to.equals("1,2,3")
+    expect(subSeqs[5].id).to.equals("2,3")
+    
+})
+
+describe('get sub sequences for duplicate', function(){
+    let seq = new Sequence(new Array(1, 1))
+    let subSeqs = seq.getSubSequences()
+    //subSeqs is 1,11
+    expect(subSeqs.length == 2)
+    expect(subSeqs[0].id).to.equals("1")
+    expect(subSeqs[1].id).to.equals("1,1")
 })
