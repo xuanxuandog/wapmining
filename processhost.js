@@ -12,7 +12,7 @@ class ProcessHost {
 
     process() {
         let pro = this
-        this.collectData2(function(rawlogs){
+        this.collectData(function(rawlogs){
             let analysis = new Analysis({
                 type : Analysis.TYPE_FREQUENT_EVENTS,
                 rawlog : {
