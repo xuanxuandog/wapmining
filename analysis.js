@@ -28,7 +28,10 @@ class Analysis {
      *                     3. a function, which is cutomized to get event value from rawlog 
      *    },
      *    "params":{
-     *       "supportThreshold" : "" //support threshold when 'type' is 'frequent sequence', for example:0.75
+     *       "supportThreshold" : "" //support threshold when 'type' is 'frequent sequences' or 'frequent events', for example:0.75(default value)
+     *                               //which means among every 100 web access sessions, certain sequence appears at least 100 * 0.75 = 75 times,
+     *                               //be noted that one sequence can be supported at most once by each session, for example, if sequence 'e1,e2' appears
+     *                               //twice in certain session, it can only be counted as one for that session
      *    }
      * }
      */
@@ -66,7 +69,7 @@ class Analysis {
             this.options.rawlog.event = 'event'
         }
         if (this.options.rawlog.sessionInterval == null) {
-            this.options.rawlog.sessionInterval = 600
+            this.options.rawlog.sessionInterval = 60
         }
 
         if (this.options.params == null) {
@@ -93,6 +96,7 @@ class Analysis {
         let analysis = this
         console.log("grouping to sessions...")
         let sessions = this.getSessions(rawlogs)
+        console.log("got " + sessions.length + " sessions...")
         let eventSet = new EventSet()
         let sequences = new Array()
 
@@ -107,7 +111,7 @@ class Analysis {
             })
             sequences.push(new Sequence(events))
         })
-        console.log("converted to " + sequences.length + " sequences")
+        console.log("got " + sequences.length + " sequences")
         let result = {}
         result.patterns = new Array()
         
