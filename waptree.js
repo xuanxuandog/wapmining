@@ -6,12 +6,16 @@ let WAPTreeNode = require('./waptreenode.js')
 let Logger = require('./logger.js')
 let log = new Logger('WAPTree')
 
-class WAPTree {
+class WAPTree {  
 
     /**
-     * 
-     * @param {*} sequences 
-     * @param {*} supportCountThreshold 
+     * refer to http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.436.2433&rep=rep1&type=pdf for algorithm details 
+     * @param {*} sequences the initial sequences, each sequence is a web access session, 
+     *                      this WAP-Tree is to find all frequent sequences among these sessions(including sub sequences of each initial sequence)
+     * @param {*} supportCountThreshold  for example, if threshold is 0.75 which means
+     *                                   among every 100 web access sessions, certain sequence appears at least 100 * 0.75 = 75 times,
+     *                                   be noted that one sequence can be supported at most once by each session, for example, if sequence 'e1,e2' appears
+     *                                   twice in certain session, it can only be counted as one for that session
      * @param {*} singleEvent  if singleEvent set to true, this will be a special WAP-Tree which only count frequent single events instead of frequent sequences
      */
     constructor(sequences, supportCountThreshold, singleEvent) {

@@ -19,20 +19,20 @@ class Analysis {
      * 
      *  
      * {
-     *    "type" : "",//analysis type, can be 1:frequent sequence 2: frequent events, default is frequent sequences
+     *    "type" : "",analysis type, can be 1:frequent sequence 2: frequent events, default is frequent sequences
      *    "rawlog" : {
-     *       "time" : "", //field in the raw logs to store the time value, default is 'ts'
-     *       "sessionInterval" : //the time in seconds to split different session, default is 10 mins = 600
+     *       "time" : "", field in the raw logs to store the time value, default is 'ts'
+     *       "sessionInterval" : the time in seconds to split different session, default is 10 mins = 600
      *       "event" : "", can be three kinds of values:
      *                     1. string, which represent the field name to store the event value in rawlog
      *                     2. array of string, which means try to get the event value from rawlog in the order of the array
      *                     3. a function, which is cutomized to get event value from rawlog 
      *    },
      *    "params":{
-     *       "supportThreshold" : "" //support threshold when 'type' is 'frequent sequences' or 'frequent events', for example:0.75(default value)
-     *                               //which means among every 100 web access sessions, certain sequence appears at least 100 * 0.75 = 75 times,
-     *                               //be noted that one sequence can be supported at most once by each session, for example, if sequence 'e1,e2' appears
-     *                               //twice in certain session, it can only be counted as one for that session
+     *       "supportThreshold" : "", support threshold when 'type' is 'frequent sequences' or 'frequent events', for example:0.75(default value)
+     *                               which means among every 100 web access sessions, certain sequence appears at least 100 * 0.75 = 75 times,
+     *                               be noted that one sequence can be supported at most once by each session, for example, if sequence 'e1,e2' appears
+     *                               twice in certain session, it can only be counted as one for that session
      *    }
      * }
      */
