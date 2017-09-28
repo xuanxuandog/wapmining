@@ -68,12 +68,12 @@ class WAPTree {
     }
 
     static getSupportCountThreshold(sequences, supportThreshold) {
-        var supportCountThreshold = 0
+        var seqCount = 0
         _.forEach(sequences, function(sequence){
-            supportCountThreshold += sequence.count
+            seqCount += sequence.count
         })
-        supportCountThreshold = supportCountThreshold * supportThreshold
-        return supportCountThreshold
+        
+        return Math.round(seqCount * supportThreshold)
     }
 
     getFrequentEvents(sequences, supportCountThreshold) {

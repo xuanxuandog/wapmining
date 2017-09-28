@@ -10,17 +10,17 @@ let Q = require('q')
 let test = {
     "192.168.1.224" : "iphone6s plus",
     "192.168.1.148" : "iphone6s",
-    "192.168.1.229" : "xiaomi phone",
+    "192.168.1.229" : "redmi pro",
     "192.168.1.159" : "kindle",
     "192.168.1.187" : "xiaomi air cleaner",
     "192.168.1.127" : "huawei phone",
-    "192.168.1.61" : "xiaomi phone 2",
+    "192.168.1.61" : "xiaomi four",
     "192.168.1.28" : "ipad"
 }
 
 class ProcessHost {
 
-    static process() {
+    static matchProfiles() {
         let promises = new Array()
 
         var profileDeferred = Q.defer()
@@ -51,25 +51,29 @@ class ProcessHost {
             let profiles = results[0].value
             for (var i = 1; i < results.length; i++) {
                 let sample = results[i].value
-                var matchPercentage = 0
-                var targetProfile = null
+                let matchedProfiles = new Array()
                 _.forEach(profiles, function(profile) {
                     let p = Analysis.matchPattern(profile, sample)
-                    if (p.matched.percentage > matchPercentage) {
-                        matchPercentage = p.matched.percentage
-                        targetProfile = profile
+                    if (p.matched.percentage > 0) {
+                        matchedProfiles.push({profile: profile, percentage: p.matched.percentage})
                     }
                 })
-                if (matchPercentage == 0) {
+                let sorted = matchedProfiles.sort(function(a, b){
+                    return b.percentage - a.percentage
+                })
+                if (sorted.length == 0) {
                     log.info("can't find matched profile for sample " + sample.label)
                     if (sample.patterns != null && sample.patterns.length > 0) {
                         log.info("sample " + sample.label + " has patterns not profiled:")
                         //log.info(sample.patterns)
                     }
                 } else {
-                    log.info("sample[" + sample.label + "] matched profile[" + targetProfile.label + "](" + (matchPercentage * 100).toFixed(2) + "%)")
+                    var msg = "sample(" + sample.label + ") matched profiles:"
+                    _.forEach(sorted, function(p){
+                        msg = msg + "(" + p.profile.label + ":" + (p.percentage * 100).toFixed(2) + "%),"
+                    })
+                    log.info(msg)
                 }
-                
             }
         })
     }
@@ -124,7 +128,7 @@ class ProcessHost {
         });
     }
 
-    static calculateProfile(ips) {
+    static calculateProfiles(ips) {
 
         let promises = new Array()
         
@@ -174,6 +178,7 @@ class ProcessHost {
     }
 }
 
-//ProcessHost.calculateProfile(new Array('192.168.1.159','192.168.1.224','192.168.1.229','192.168.1.127','192.168.1.61','192.168.1.28'))
-ProcessHost.process()
+//ProcessHost.calculateProfiles(new Array('192.168.1.159','192.168.1.224','192.168.1.229','192.168.1.127','192.168.1.61','192.168.1.28'))
+ProcessHost.matchProfiles()
+
 
