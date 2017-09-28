@@ -33,7 +33,7 @@ class ProcessHost {
                         event : ['host','ip']
                     },
                     params : {
-                        supportThreshold : 0.1
+                        supportThreshold : 0.15
                     }  
                 })
                 deferred.resolve(analysis.getPatterns(rawlogs, ip))
@@ -55,7 +55,12 @@ class ProcessHost {
                         targetProfile = profile
                     }
                 })
-                log.info("sample " + sample.label + " should match profile " + targetProfile.label + " with highest percentage " + (matchPercentage * 100).toFixed(2) + "%")
+                if (matchPercentage == 0) {
+                    log.info("can't find matched profile for sample " + sample.label)
+                } else {
+                    log.info("sample " + sample.label + " should match profile " + targetProfile.label + " with highest percentage " + (matchPercentage * 100).toFixed(2) + "%")
+                }
+                
             }
         })
     }

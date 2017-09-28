@@ -94,7 +94,6 @@ class Analysis {
         let analysis = this
         log.info("got " + rawlogs.length + " raw data")
         log.info("grouping to sessions...")
-        //let sessions = this.getSessions(rawlogs)
         let sessions = new TimeoutBasedSession(rawlogs, this.options.rawlog.time).groupToSessions()
         log.info("got " + sessions.length + " sessions...")
         let eventSet = new EventSet()
