@@ -22,7 +22,7 @@ class ProcessHost {
         //192.168.1.187 xiaomi air cleaner
         //192.168.1.159 kindle
         
-        let test = ["192.168.1.224", "192.168.1.148", "192.168.1.229", "192.168.1.159"]
+        let test = ["192.168.1.224", "192.168.1.148", "192.168.1.229", "192.168.1.159", "192.168.1.187"]
         
         _.forEach(test, function(ip){
             var deferred = Q.defer();
@@ -47,9 +47,16 @@ class ProcessHost {
             let profiles = results[0].value
             for (var i = 1; i < results.length; i++) {
                 let sample = results[i].value
-                _.forEach(profiles, function(profile){
-                    Analysis.matchPattern(profile, sample)
+                var matchPercentage = 0
+                var targetProfile = null
+                _.forEach(profiles, function(profile) {
+                    let p = Analysis.matchPattern(profile, sample)
+                    if (p > matchPercentage) {
+                        matchPercentage = p
+                        targetProfile = profile
+                    }
                 })
+                console.log("sample " + sample.label + " should match profile " + targetProfile.label + " with highest percentage " + (matchPercentage * 100).toFixed(2) + "%")
             }
         })
     }
@@ -142,7 +149,7 @@ class ProcessHost {
     }
 }
 
-//ProcessHost.process()
-ProcessHost.calculateProfile('192.168.1.159')
+ProcessHost.process()
+//ProcessHost.calculateProfile('192.168.1.159')
 //ProcessHost.calculateProfile('192.168.1.224')
 //ProcessHost.calculateProfile('192.168.1.229')

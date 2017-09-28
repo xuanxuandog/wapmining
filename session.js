@@ -15,12 +15,17 @@ class TimeoutBasedSession {
         }
         this.fixedTimeout = fixedTimeout
         let _this = this
-        this.rawlogs = rawlogs.sort(function(a,b){
-            return a[_this.timeField] - b[_this.timeField]
-        })
+        if (rawlogs != null && rawlogs.length > 0) {
+            this.rawlogs = rawlogs.sort(function(a,b){
+                return a[_this.timeField] - b[_this.timeField]
+            })
+        }
     }
 
     groupToSessions() {
+        if (this.rawlogs == null || this.rawlogs.length == 0) {
+            return new Array()
+        }
         let session = this
         log.info("calculating session timeout value...")
         let timeout = this.calculateTimeout()
