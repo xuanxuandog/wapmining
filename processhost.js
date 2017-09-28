@@ -14,7 +14,8 @@ let test = {
     "192.168.1.159" : "kindle",
     "192.168.1.187" : "xiaomi air cleaner",
     "192.168.1.127" : "huawei phone",
-    "192.168.1.61" : "xiaomi phone 2"
+    "192.168.1.61" : "xiaomi phone 2",
+    "192.168.1.28" : "ipad"
 }
 
 class ProcessHost {
@@ -37,7 +38,7 @@ class ProcessHost {
                         event : ['host','ip']
                     },
                     params : {
-                        supportThreshold : 0.1
+                        supportThreshold : 0.15
                     }  
                 })
                 deferred.resolve(analysis.getPatterns(rawlogs, ip + " " + test[ip]))
@@ -66,7 +67,7 @@ class ProcessHost {
                         //log.info(sample.patterns)
                     }
                 } else {
-                    log.info("sample " + sample.label + " should match profile " + targetProfile.label + " with highest percentage " + (matchPercentage * 100).toFixed(2) + "%")
+                    log.info("sample[" + sample.label + "] matched profile[" + targetProfile.label + "](" + (matchPercentage * 100).toFixed(2) + "%)")
                 }
                 
             }
@@ -74,7 +75,7 @@ class ProcessHost {
     }
 
     static collectData(ip, callback) {
-        log.info("collecting raw data for " + ip + " ...")
+        log.info("collecting raw data for " + ip + " " + test[ip] + "...")
         var request = require('request');
         request.get("http://frp.7yu.io:9834/v1/host/" + ip + "/recentFlow", function(err, res, body) {
             if (!err && res.statusCode === 200) {
@@ -173,6 +174,6 @@ class ProcessHost {
     }
 }
 
-//ProcessHost.calculateProfile(new Array('192.168.1.159','192.168.1.224','192.168.1.229','192.168.1.127','192.168.1.61'))
+//ProcessHost.calculateProfile(new Array('192.168.1.159','192.168.1.224','192.168.1.229','192.168.1.127','192.168.1.61','192.168.1.28'))
 ProcessHost.process()
 
