@@ -45,33 +45,6 @@ describe('set event value by function', function(){
     expect(p.patterns[0][0]).to.equals('e1')
 })
 
-describe('get sessions', function(){
-    let analysis = new Analysis()
-    let rawlogs = new Array()
-    rawlogs.push({ts : 1506399984.831362})
-    rawlogs.push({ts : 1506499995.831362})
-    rawlogs.push({ts : 1507499985.831362})
-    rawlogs.push({ts : 1506499985.831362})
-    rawlogs.push({ts : 1506399985.831362})
-    let sessions = analysis.getSessions(rawlogs)
-    /**
-     * should be:
-     * [
-     * { ts: 1506399984.831362 }, { ts: 1506399985.831362 }
-     * { ts: 1506499985.831362 }, { ts: 1506499995.831362 }
-     * { ts: 1507499985.831362 }
-     * ]
-     */
-    expect(sessions.length).to.equals(3)
-    expect(sessions[0][0].ts).to.equals(1506399984.831362)
-    expect(sessions[0][1].ts).to.equals(1506399985.831362)
-
-    expect(sessions[1][0].ts).to.equals(1506499985.831362)
-    expect(sessions[1][1].ts).to.equals(1506499995.831362)
-
-    expect(sessions[2][0].ts).to.equals(1507499985.831362)
-})
-
 describe('get pattern', function(){
     let analysis = new Analysis({params:{supportThreshold:0.6}})
     let rawlogs = new Array()

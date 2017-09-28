@@ -6,6 +6,7 @@ let Sequence = require('./sequence.js')
 let _ = require('underscore')
 let Logger = require('./logger.js')
 let log = new Logger('Analysis')
+let TimeoutBasedSession = require('./session.js')
 class Analysis {
 
     static get TYPE_FREQUENT_SEQUENCES(){
@@ -22,7 +23,6 @@ class Analysis {
      *    "type" : "",analysis type, can be 1:frequent sequence 2: frequent events, default is frequent sequences
      *    "rawlog" : {
      *       "time" : "", field in the raw logs to store the time value, default is 'ts'
-     *       "sessionInterval" : the time in seconds to split different session, default is 10 mins = 600
      *       "event" : "", can be three kinds of values:
      *                     1. string, which represent the field name to store the event value in rawlog
      *                     2. array of string, which means try to get the event value from rawlog in the order of the array
@@ -69,9 +69,6 @@ class Analysis {
         if (this.options.rawlog.event == null) {
             this.options.rawlog.event = 'event'
         }
-        if (this.options.rawlog.sessionInterval == null) {
-            this.options.rawlog.sessionInterval = 60
-        }
 
         if (this.options.params == null) {
             this.options.params = {}
@@ -97,7 +94,8 @@ class Analysis {
         let analysis = this
         log.info("got " + rawlogs.length + " raw data")
         log.info("grouping to sessions...")
-        let sessions = this.getSessions(rawlogs)
+        //let sessions = this.getSessions(rawlogs)
+        let sessions = new TimeoutBasedSession(rawlogs, this.options.rawlog.time).groupToSessions()
         log.info("got " + sessions.length + " sessions...")
         let eventSet = new EventSet()
         let sequences = new Array()
@@ -201,36 +199,6 @@ class Analysis {
             return true
         }
         return false
-    }
-
-    getSessions(rawlogs) {
-        let timeField = this.options.rawlog.time
-        let sessionInterval = this.options.rawlog.sessionInterval
-        //order by time
-        let sortedLogs = rawlogs.sort(function(a,b){
-            return a[timeField] - b[timeField]
-        })
-        //group to sessions based on interval
-        let sessions = new Array()
-        var lastTime = null
-        var currentSession = new Array()
-        _.forEach(sortedLogs, function(rawlog){
-            let time = rawlog[timeField]
-            if (lastTime == null) {
-                lastTime = time
-            }
-            if ((time - lastTime) < sessionInterval) {
-                currentSession.push(rawlog)
-            } else {
-                //break to a new session
-                sessions.push(currentSession)
-                currentSession = new Array()
-                currentSession.push(rawlog)
-            }
-            lastTime = time
-        })
-        sessions.push(currentSession)
-        return sessions
     }
 }
 
