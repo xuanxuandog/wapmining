@@ -55,6 +55,8 @@ class TimeoutBasedSession {
         var session = this
         if (this.fixedTimeout != null) {
             return this.fixedTimeout
+        } else if (this.rawlogs.length == 1) {
+            return 0
         } else {
             //mapping each time diff to 60 seconds bucket and calculate the frequence for each bucket
             let buckets = new Object()
