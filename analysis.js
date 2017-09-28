@@ -42,7 +42,6 @@ class Analysis {
                 type : Analysis.TYPE_FREQUENT_SEQUENCES,
                 rawlog : {
                     time : "ts",
-                    sessionInterval : 60,
                     event : "event"
                 },
                 params : {
