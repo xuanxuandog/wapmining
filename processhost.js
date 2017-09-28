@@ -30,7 +30,6 @@ class ProcessHost {
                 let analysis = new Analysis({
                     type : Analysis.TYPE_FREQUENT_SEQUENCES,
                     rawlog : {
-                        sessionInterval : 60,
                         event : ['host','ip']
                     },
                     params : {
@@ -51,12 +50,12 @@ class ProcessHost {
                 var targetProfile = null
                 _.forEach(profiles, function(profile) {
                     let p = Analysis.matchPattern(profile, sample)
-                    if (p > matchPercentage) {
-                        matchPercentage = p
+                    if (p.matched.percentage > matchPercentage) {
+                        matchPercentage = p.matched.percentage
                         targetProfile = profile
                     }
                 })
-                console.log("sample " + sample.label + " should match profile " + targetProfile.label + " with highest percentage " + (matchPercentage * 100).toFixed(2) + "%")
+                log.info("sample " + sample.label + " should match profile " + targetProfile.label + " with highest percentage " + (matchPercentage * 100).toFixed(2) + "%")
             }
         })
     }

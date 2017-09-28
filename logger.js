@@ -6,7 +6,7 @@ class Logger {
     constructor(name) {
         let logger = log4js.getLogger(name)
         logger.level = 'debug'
-        //logger.level = 'info'
+        logger.level = 'info'
         return logger
     }
 }

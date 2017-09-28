@@ -73,23 +73,8 @@ describe('get pattern', function(){
     
 })
 
-describe('findAnomaly', function(){
-    let profile = {"patterns":[["a"],["b"]]}
-    let sample = {"patterns":[["a"],["c"]]}
-    let result = Analysis.findAnomaly(profile, sample)
-    /**
-     * should be:
-     * {"anomaly":{"patterns":[["c"]]}}
-     */
-    expect(result.anomaly.patterns.length).to.equals(1)
-    expect(result.anomaly.patterns[0].length).to.equals(1)
-    expect(result.anomaly.patterns[0][0]).to.equals('c')
-
-})
-
-
 describe('match pattern', function(){
     let profile = {"patterns":[["a"],["b"]]}
     let sample = {"patterns":[["a"],["c"]]}
-    expect(Analysis.matchPattern(profile, sample)).to.equals(0.5)
+    expect(Analysis.matchPattern(profile, sample).matched.percentage).to.equals(0.5)
 })

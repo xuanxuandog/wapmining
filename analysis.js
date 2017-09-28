@@ -138,54 +138,47 @@ class Analysis {
         return result
     }
 
-    static findAnomaly(profile, sample) {
-        let analysis = this
-        let result = {}
-        if (profile != null && sample != null && sample.patterns != null && sample.patterns.length > 0) {
-            result.anomaly = {}
-
-            if (profile.patterns == null || profile.patterns.length == 0) {
-                result.anomaly.patterns = sample.patterns
-            } else {
-                result.anomaly.patterns = new Array()
-            }
-            _.forEach(sample.patterns, function(samplePattern){
-                var match = false
-                _.forEach(profile.patterns, function(profilePattern){
-                    if (analysis.compareArray(samplePattern, profilePattern)) {
-                        match = true
-                    }
-                })
-                if (!match) {
-                    result.anomaly.patterns.push(samplePattern)
-                }
-            })
-        }
-        return result
-    }
-
     /**
      * given profile patterns and sample patterns, return the percentage that how many patterns in sample patterns can be found in profile patterns
      * @param {*} profile 
      * @param {*} sample 
      */
     static matchPattern(profile, sample) {
-        var result
+        let result = {
+            matched : {
+                percentage : 0,
+                patterns : new Array()
+            },
+            unmatched : {
+                percentage : 0,
+                patterns : new Array()
+            }
+        }
+        var matchedCount = 0
+        var unmatchedCount = 0
         if (profile != null && sample != null && sample.patterns != null && sample.patterns.length > 0 && profile.patterns != null && profile.patterns.length > 0) {
-            var matchedCount = 0
+            
             _.forEach(sample.patterns, function(samplePattern){
+                var unmatched = true
                 _.forEach(profile.patterns, function(profilePattern){
                     if (Analysis.compareArray(samplePattern, profilePattern)) {
                         matchedCount = matchedCount + 1
+                        result.matched.patterns.push(samplePattern)
+                        unmatched = false
                     }
                 })
+                if (unmatched) {
+                    unmatchedCount = unmatchedCount + 1
+                    result.unmatched.patterns.push(samplePattern)
+                }
             })
-            
-            result = matchedCount / sample.patterns.length
-        } else {
-            result = 0
+            result.matched.percentage = matchedCount / sample.patterns.length
+            result.unmatched.percentage = unmatchedCount / sample.patterns.length
+        } 
+        if (log.isDebugEnabled()) {
+            log.debug("sample(" + sample.label + ") matched profile(" + profile.label + ") with result:")
+            log.debug(JSON.stringify(result))
         }
-        log.info("sample(" + sample.label + ") has " + (result * 100).toFixed(2) + "% same as profile(" + profile.label + ")")
         return result
     }
 
