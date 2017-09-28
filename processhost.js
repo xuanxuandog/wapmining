@@ -6,6 +6,17 @@ let Logger = require('./logger.js')
 let log = new Logger('ProcessHost')
 let Q = require('q')
 
+
+let test = {
+    "192.168.1.224" : "iphone6s plus",
+    "192.168.1.148" : "iphone6s",
+    "192.168.1.229" : "xiaomi phone",
+    "192.168.1.159" : "kindle",
+    "192.168.1.187" : "xiaomi air cleaner",
+    "192.168.1.127" : "huawei phone",
+    "192.168.1.61" : "xiaomi phone 2"
+}
+
 class ProcessHost {
 
     static process() {
@@ -16,15 +27,8 @@ class ProcessHost {
             profileDeferred.resolve(profiles)
         })
         promises.push(profileDeferred.promise)
-        //192.168.1.229  xiaomi
-        //192.168.1.224 iphone6splus
-        //192.168.1.148 iphone6s
-        //192.168.1.187 xiaomi air cleaner
-        //192.168.1.159 kindle
-        
-        let test = ["192.168.1.224", "192.168.1.148", "192.168.1.229", "192.168.1.159", "192.168.1.187"]
-        
-        _.forEach(test, function(ip){
+
+        _.forEach(Object.keys(test), function(ip){
             var deferred = Q.defer();
             ProcessHost.collectData(ip, function(rawlogs){
                 let analysis = new Analysis({
@@ -33,10 +37,10 @@ class ProcessHost {
                         event : ['host','ip']
                     },
                     params : {
-                        supportThreshold : 0.15
+                        supportThreshold : 0.1
                     }  
                 })
-                deferred.resolve(analysis.getPatterns(rawlogs, ip))
+                deferred.resolve(analysis.getPatterns(rawlogs, ip + " " + test[ip]))
             })
             promises.push(deferred.promise)
         })
@@ -57,6 +61,10 @@ class ProcessHost {
                 })
                 if (matchPercentage == 0) {
                     log.info("can't find matched profile for sample " + sample.label)
+                    if (sample.patterns != null && sample.patterns.length > 0) {
+                        log.info("sample " + sample.label + " has patterns not profiled:")
+                        //log.info(sample.patterns)
+                    }
                 } else {
                     log.info("sample " + sample.label + " should match profile " + targetProfile.label + " with highest percentage " + (matchPercentage * 100).toFixed(2) + "%")
                 }
@@ -70,12 +78,6 @@ class ProcessHost {
         var request = require('request');
         request.get("http://frp.7yu.io:9834/v1/host/" + ip + "/recentFlow", function(err, res, body) {
             if (!err && res.statusCode === 200) {
-                var fs = require('fs');
-                var stream = fs.createWriteStream("test.json");
-                stream.once('open', function(fd) {
-                  stream.write(body)
-                  stream.end();
-                });
                 callback(JSON.parse(body))
             } else {
                 console.log(err)
@@ -107,7 +109,6 @@ class ProcessHost {
                 }
                 
             })
-            //log.info(arr)
             callback(arr)
         })
     }
@@ -122,38 +123,56 @@ class ProcessHost {
         });
     }
 
-    static calculateProfile(ip) {
-        ProcessHost.collectData3("./" + ip + ".json", function(rawlogs){
-            let newlogs = rawlogs.map(l => {
-                let l1 = new Object()
-                l1.ts = l.ts
-                if (l.af != null) {
-                    let ks = Object.keys(l.af)
-                    if (ks.length > 0 && ks[0] != 'undefined') {
-                        l1.event = ks[0]
+    static calculateProfile(ips) {
+
+        let promises = new Array()
+        
+
+        _.forEach(ips, function(ip){
+            var deferred = Q.defer()
+            ProcessHost.collectData3("./" + ip + ".json", function(rawlogs){
+                let newlogs = rawlogs.map(l => {
+                    let l1 = new Object()
+                    l1.ts = l.ts
+                    if (l.af != null) {
+                        let ks = Object.keys(l.af)
+                        if (ks.length > 0 && ks[0] != 'undefined') {
+                            l1.event = ks[0]
+                        } else {
+                            l1.event = l.dh
+                        }
                     } else {
                         l1.event = l.dh
                     }
-                } else {
-                    l1.event = l.dh
-                }
-                return l1
+                    return l1
+                })
+                let analysis = new Analysis({
+                        type : Analysis.TYPE_FREQUENT_SEQUENCES,
+                        params : {
+                            supportThreshold : 0.1
+                        }  
+                })
+                deferred.resolve(analysis.getPatterns(newlogs, ip + " " + test[ip]))
             })
-            let analysis = new Analysis({
-                    type : Analysis.TYPE_FREQUENT_SEQUENCES,
-                    rawlog : {
-                        sessionInterval : 60
-                    },
-                    params : {
-                        supportThreshold : 0.1
-                    }  
-            })
-            analysis.getPatterns(newlogs, ip)
+            promises.push(deferred.promise)
+        })
+
+        Q.allSettled(promises).then(function(results) {
+            let arr = new Array()
+            for (var i = 0; i < results.length; i++) {
+                arr.push(results[i].value)
+            }
+            var fs = require('fs');
+            var stream = fs.createWriteStream("./profiles.json");
+            stream.once('open', function(fd) {
+              stream.write(JSON.stringify(arr))
+              stream.end();
+            });
+            
         })
     }
 }
 
+//ProcessHost.calculateProfile(new Array('192.168.1.159','192.168.1.224','192.168.1.229','192.168.1.127','192.168.1.61'))
 ProcessHost.process()
-//ProcessHost.calculateProfile('192.168.1.159')
-//ProcessHost.calculateProfile('192.168.1.224')
-//ProcessHost.calculateProfile('192.168.1.229')
+

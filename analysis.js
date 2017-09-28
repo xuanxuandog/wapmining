@@ -92,14 +92,14 @@ class Analysis {
 
     getPatterns(rawlogs, label) {
         let analysis = this
-        log.info("got " + rawlogs.length + " raw data")
-        log.info("grouping to sessions...")
+        log.info("got " + rawlogs.length + " raw data(" + label + ")")
+        log.info("grouping to sessions(" + label + ")...")
         let sessions = new TimeoutBasedSession(rawlogs, this.options.rawlog.time).groupToSessions()
-        log.info("got " + sessions.length + " sessions...")
+        log.info("got " + sessions.length + " sessions(" + label + ")...")
         let eventSet = new EventSet()
         let sequences = new Array()
 
-        log.info("converting to sequences...")
+        log.info("converting to sequences(" + label + ")...")
         _.forEach(sessions, function(session){
             //session => sequence
             let events = new Array()
@@ -110,14 +110,14 @@ class Analysis {
             })
             sequences.push(new Sequence(events))
         })
-        log.info("got " + sequences.length + " sequences")
+        log.info("got " + sequences.length + " sequences(" + label + ")")
         let result = {}
         result.patterns = new Array()
 
-        log.info("calculating support count threshold...")
+        log.info("calculating support count threshold(" + label + ")...")
         let supportCountThreshold = WAPTree.getSupportCountThreshold(sequences, this.options.params.supportThreshold)
-        log.info("support count threshold:" + supportCountThreshold)
-        log.info("WAP-tree mining...")
+        log.info("support count threshold(" + label + "):" + supportCountThreshold)
+        log.info("WAP-tree mining(" + label + ")...")
         var singleEvent = false
 
         if (this.options.type == Analysis.TYPE_FREQUENT_EVENTS) {
@@ -132,8 +132,10 @@ class Analysis {
         if (label != null) {
             result.label = label
         }
-        log.info("found " + result.patterns.length + " patterns")
-        log.info(result)
+        log.info("found " + result.patterns.length + " patterns(" + label + ")")
+        if (log.isDebugEnabled()) {
+            log.debug(result)
+        }
         return result
     }
 
